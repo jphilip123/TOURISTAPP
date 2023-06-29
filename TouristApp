@@ -1,0 +1,199 @@
+package com.example.practice;
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TouristApp extends Application {
+
+    // Map to store the destination details
+    private Map<String, Destination> destinations;
+
+    @Override
+    public void start(Stage primaryStage) {
+        // Initialize the destinations
+        initializeDestinations();
+
+        // Create the main layout
+        BorderPane mainLayout = new BorderPane();
+
+        // Create the list view to display the destinations
+        ListView<String> destinationListView = new ListView<>();
+        destinationListView.getItems().addAll(destinations.keySet());
+
+        // Create the details area to display destination information
+        VBox detailsVBox = new VBox();
+        detailsVBox.setAlignment(Pos.TOP_CENTER);
+        detailsVBox.setPadding(new Insets(10));
+
+        // Add event listener to update details when a destination is selected
+        destinationListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                updateDetailsView(newValue, detailsVBox);
+            }
+        });
+
+        // Create the scroll pane for the details area
+        ScrollPane detailsScrollPane = new ScrollPane(detailsVBox);
+        detailsScrollPane.setFitToWidth(true);
+
+        // Create the main split pane
+        SplitPane splitPane = new SplitPane();
+        splitPane.getItems().addAll(destinationListView, detailsScrollPane);
+        splitPane.setDividerPositions(0.3);
+
+        // Set the main layout
+        mainLayout.setCenter(splitPane);
+
+        // Create the scene
+        Scene scene = new Scene(mainLayout, 800, 600);
+
+        // Set up the stage
+        primaryStage.setTitle("Georgia Tourist App");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void updateDetailsView(String destinationName, VBox detailsVBox) {
+        // Clear the previous details
+        detailsVBox.getChildren().clear();
+
+        // Get the destination details
+        Destination destination = destinations.get(destinationName);
+
+        // Create the title label
+        Label titleLabel = new Label(destinationName);
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+
+        // Create the description label
+        Label descriptionLabel = new Label(destination.getDescription());
+
+        // Create the image view for the pictures
+        HBox picturesHBox = new HBox(10);
+        picturesHBox.setAlignment(Pos.CENTER);
+        for (String picturePath : destination.getPictures()) {
+            try {
+                FileInputStream inputStream = new FileInputStream(picturePath);
+                Image image = new Image(inputStream);
+                ImageView imageView = new ImageView(image);
+                imageView.setFitHeight(200);
+                imageView.setPreserveRatio(true);
+                picturesHBox.getChildren().add(imageView);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Add the components to the details view
+        detailsVBox.getChildren().addAll(titleLabel, descriptionLabel, picturesHBox);
+    }
+
+    private void initializeDestinations() {
+        destinations = new HashMap<>();
+
+        // Destination 1: Atlanta
+        Destination rockCity = new Destination("Rock City");
+        rockCity.setDescription("Atlanta is the capital of Georgia and a vibrant city with a rich history. Must-see attractions include the Georgia Aquarium, World of Coca-Cola, and the Atlanta Botanical Garden.");
+        rockCity.addPicture("atlanta1.jpg");
+        rockCity.addPicture("atlanta2.jpg");
+        rockCity.addPicture("atlanta3.jpg");
+        rockCity.addPicture("atlanta4.jpg");
+        rockCity.addPicture("atlanta5.jpg");
+        destinations.put("Rock City", rockCity);
+
+        // Destination 2: Savannah
+        Destination blairsville = new Destination("Blairsville");
+        blairsville.setDescription("Savannah is known for its charming historic district and beautiful architecture. Don't miss visiting Forsyth Park, River Street, and the Cathedral of St. John the Baptist.");
+        blairsville.addPicture(" ");
+        blairsville.addPicture("Blairsville.jpg");
+        blairsville.addPicture("Blairsville.jpg");
+        blairsville.addPicture("Blairsville.jpg");
+        blairsville.addPicture("Blairsville.jpg");
+        destinations.put("Blairsville", blairsville);
+
+        // Destination 3: Jekyll Island
+        Destination suches = new Destination("Suches");
+        suches.setDescription("Jekyll Island is a peaceful retreat with pristine beaches and a rich history. Explore Driftwood Beach, visit the Georgia Sea Turtle Center, and take a bike ride along the island's scenic trails.");
+        suches.addPicture("jekyll1.jpg");
+        suches.addPicture("jekyll2.jpg");
+        suches.addPicture("jekyll3.jpg");
+        suches.addPicture("jekyll4.jpg");
+        suches.addPicture("jekyll5.jpg");
+        destinations.put("Suches", suches);
+
+        // Destination 4: Tybee Island
+        Destination savannah = new Destination("Savannah");
+        savannah.setDescription("Tybee Island is a popular beach destination near Savannah. Enjoy the sandy shores, visit the historic Tybee Island Light Station, and explore the Tybee Marine Science Center.");
+        savannah.addPicture("Savannah.jpg");
+        savannah.addPicture("Savannah.jpg");
+        savannah.addPicture("Savannah.jpg");
+        savannah.addPicture("Savannah.jpg");
+        savannah.addPicture("Savannah.jpg");
+        destinations.put("Savannah", savannah);
+
+        // Destination 5: Athens
+        Destination goldenIsles = new Destination("Golden Isles");
+        goldenIsles.setDescription("Athens is known for its vibrant music scene and rich cultural heritage. Visit the University of Georgia, explore the State Botanical Garden, and catch a live show at the historic 40 Watt Club.");
+        goldenIsles.addPicture("athens1.jpg");
+        goldenIsles.addPicture("athens2.jpg");
+        goldenIsles.addPicture("athens3.jpg");
+        goldenIsles.addPicture("athens4.jpg");
+        goldenIsles.addPicture("athens5.jpg");
+        destinations.put("Golden Isles", goldenIsles);
+
+        // Destination 6: Cumberland Island
+        Destination cumberlandIsland = new Destination("Cumberland Island");
+        cumberlandIsland.setDescription("Cumberland Island is a pristine wilderness and a perfect destination for nature lovers. Explore the island's beautiful beaches, hike through the maritime forest, and visit the ruins of Dungeness Mansion.");
+        cumberlandIsland.addPicture("cumberland1.jpg");
+        cumberlandIsland.addPicture("cumberland2.jpg");
+        cumberlandIsland.addPicture("cumberland3.jpg");
+        cumberlandIsland.addPicture("cumberland4.jpg");
+        cumberlandIsland.addPicture("cumberland5.jpg");
+        destinations.put("Cumberland Island", cumberlandIsland);
+
+        // Destination 7: Macon
+        Destination elberton = new Destination("Elberton");
+        elberton.setDescription("Macon is a city with a rich musical heritage and beautiful architecture. Visit the Ocmulgee National Monument, explore the historic Hay House, and enjoy the annual Cherry Blossom Festival.");
+        elberton.addPicture("macon1.jpg");
+        elberton.addPicture("macon2.jpg");
+        elberton.addPicture("macon3.jpg");
+        elberton.addPicture("macon4.jpg");
+        elberton.addPicture("macon5.jpg");
+        destinations.put("Elberton", elberton);
+
+        //Destination 8
+        Destination toccoaFalls = new Destination("Toccoa Falls");
+        toccoaFalls.setDescription("Macon is a city with a rich musical heritage and beautiful architecture. Visit the Ocmulgee National Monument, explore the historic Hay House, and enjoy the annual Cherry Blossom Festival.");
+        toccoaFalls.addPicture("macon1.jpg");
+        toccoaFalls.addPicture("macon2.jpg");
+        toccoaFalls.addPicture("macon3.jpg");
+        toccoaFalls.addPicture("macon4.jpg");
+        toccoaFalls.addPicture("macon5.jpg");
+        destinations.put("Toccoa Falls", toccoaFalls);
+
+        //Destination 9
+        Destination hiawassee = new Destination("Hiawassee");
+        hiawassee.setDescription("Macon is a city with a rich musical heritage and beautiful architecture. Visit the Ocmulgee National Monument, explore the historic Hay House, and enjoy the annual Cherry Blossom Festival.");
+        hiawassee.addPicture("macon1.jpg");
+        hiawassee.addPicture("macon2.jpg");
+        hiawassee.addPicture("macon3.jpg");
+        hiawassee.addPicture("macon4.jpg");
+        hiawassee.addPicture("macon5.jpg");
+        destinations.put("Hiawassee", hiawassee);
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
