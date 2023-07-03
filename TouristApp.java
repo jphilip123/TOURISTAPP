@@ -1,4 +1,5 @@
 package com.example.mylovelyfxapp;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,9 +10,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TouristApp extends Application {
@@ -32,31 +33,31 @@ public class TouristApp extends Application {
         destinationListView.getItems().addAll(destinations.keySet());
 
         // Create the details area to display destination information
-        VBox detailsVBox = new VBox();
-        detailsVBox.setAlignment(Pos.TOP_CENTER);
-        detailsVBox.setPadding(new Insets(10));
+        FlowPane detailsFlowPane = new FlowPane();
+        detailsFlowPane.setAlignment(Pos.TOP_LEFT);
+        detailsFlowPane.setPadding(new Insets(10));
 
         // Add event listener to update details when a destination is selected
         destinationListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                updateDetailsView(newValue, detailsVBox);
+                updateDetailsView(newValue, detailsFlowPane);
             }
         });
 
         // Create the scroll pane for the details area
-        ScrollPane detailsScrollPane = new ScrollPane(detailsVBox);
+        ScrollPane detailsScrollPane = new ScrollPane(detailsFlowPane);
         detailsScrollPane.setFitToWidth(true);
 
         // Create the main split pane
         SplitPane splitPane = new SplitPane();
         splitPane.getItems().addAll(destinationListView, detailsScrollPane);
-        splitPane.setDividerPositions(0.3);
+        splitPane.setDividerPositions(0.2);
 
         // Set the main layout
         mainLayout.setCenter(splitPane);
 
         // Create the scene
-        Scene scene = new Scene(mainLayout, 800, 600);
+        Scene scene = new Scene(mainLayout, 900, 700);
 
         // Set up the stage
         primaryStage.setTitle("Georgia Tourist App");
@@ -64,9 +65,9 @@ public class TouristApp extends Application {
         primaryStage.show();
     }
 
-    private void updateDetailsView(String destinationName, VBox detailsVBox) {
+    private void updateDetailsView(String destinationName, FlowPane detailsFlowPane) {
         // Clear the previous details
-        detailsVBox.getChildren().clear();
+        detailsFlowPane.getChildren().clear();
 
         // Get the destination details
         Destination destination = destinations.get(destinationName);
@@ -77,103 +78,142 @@ public class TouristApp extends Application {
 
         // Create the description label
         Label descriptionLabel = new Label(destination.getDescription());
+        descriptionLabel.setWrapText(true); // Enable wrapping of text to prevent it from stretching the window
 
-        // Create the image view for the pictures
-        HBox picturesHBox = new HBox(10);
-        picturesHBox.setAlignment(Pos.CENTER);
+        // Add the title and description labels to the details view
+        detailsFlowPane.getChildren().addAll(titleLabel, descriptionLabel);
+
+        // Create the flow pane for the pictures
+        FlowPane picturesFlowPane = new FlowPane(10, 10);
+        picturesFlowPane.setAlignment(Pos.BOTTOM_LEFT);
+
+        // Adjust the size of the flow pane to fit the content
+        picturesFlowPane.setPrefWrapLength(500); // Change this value to fit your desired width
+
         for (String picturePath : destination.getPictures()) {
             try {
-                FileInputStream inputStream = new FileInputStream(picturePath);
-                Image image = new Image(inputStream);
+                Image image = new Image(picturePath);
                 ImageView imageView = new ImageView(image);
-                imageView.setFitHeight(200);
+                imageView.setFitHeight(400);
                 imageView.setPreserveRatio(true);
-                picturesHBox.getChildren().add(imageView);
-            } catch (FileNotFoundException e) {
+
+                // Adjust the size of the image view to fit the images horizontally
+                imageView.setFitWidth(400); // Change this value to fit your desired width
+
+                picturesFlowPane.getChildren().add(imageView);
+            } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
         }
 
-        // Add the components to the details view
-        detailsVBox.getChildren().addAll(titleLabel, descriptionLabel, picturesHBox);
+        // Add the pictures flow pane to the details view
+        detailsFlowPane.getChildren().add(picturesFlowPane);
     }
 
+    // Add the components to the details view
     private void initializeDestinations() {
         destinations = new HashMap<>();
 
-        // Destination 1: Atlanta
-        Destination atlanta = new Destination("Atlanta");
-        atlanta.setDescription("Atlanta is the capital of Georgia and a vibrant city with a rich history. Must-see attractions include the Georgia Aquarium, World of Coca-Cola, and the Atlanta Botanical Garden.");
-        atlanta.addPicture("atlanta1.jpg");
-        atlanta.addPicture("atlanta2.jpg");
-        atlanta.addPicture("atlanta3.jpg");
-        atlanta.addPicture("atlanta4.jpg");
-        atlanta.addPicture("atlanta5.jpg");
-        destinations.put("Atlanta", atlanta);
-
-        // Destination 2: Savannah
+        // Destination 1: Savannah
         Destination savannah = new Destination("Savannah");
-        savannah.setDescription("Savannah is known for its charming historic district and beautiful architecture. Don't miss visiting Forsyth Park, River Street, and the Cathedral of St. John the Baptist.");
-        savannah.addPicture(" ");
-        savannah.addPicture("savannah2.jpg");
-        savannah.addPicture("savannah3.jpg");
-        savannah.addPicture("savannah4.jpg");
-        savannah.addPicture("savannah5.jpg");
+        savannah.setDescription("Savannah, Georgia, is a charming and historic city that offers a unique blend of Southern hospitality, captivating architecture, and a vibrant cultural scene. With its cobblestone streets, moss-draped oak trees, and stately antebellum homes, Savannah is a must-visit destination for tourists seeking a glimpse into the Old South. Here's a brief summary of the must-see attractions and why a tourist would visit Savannah.\n\n" +
+                "1. Forsyth Park: One of Savannah's most iconic landmarks, Forsyth Park is a sprawling green space adorned with beautiful fountains, statues, and a fragrant garden. Visitors can relax on the lush lawns, take a leisurely stroll, or enjoy a picnic while immersing themselves in the park's serene ambiance.\n\n" +
+                "2. River Street: Located along the Savannah River, River Street is a bustling waterfront district filled with shops, restaurants, and historic buildings. This vibrant area offers stunning views of the river, charming cobblestone streets, and a lively atmosphere. Visitors can indulge in delicious seafood, shop for unique souvenirs, or simply soak in the lively atmosphere of this historic district.\n\n" +
+                "3. Cathedral of St. John the Baptist: This magnificent cathedral is a masterpiece of Gothic architecture and is considered one of Savannah's most beautiful landmarks. Its towering spires, intricate stained glass windows, and awe-inspiring interior make it a must-visit for architecture enthusiasts and those seeking a moment of tranquility.\n\n" +
+                "4. Historic District: Savannah's Historic District is a treasure trove of history and charm. With its meticulously preserved 18th and 19th-century architecture, picturesque squares, and elegant homes, it's a delight to explore on foot. Visitors can take guided tours, visit historic museums, and admire the distinct beauty of this well-preserved district.\n\n" +
+                "5. Bonaventure Cemetery: This hauntingly beautiful cemetery is located just outside of Savannah and is known for its moss-covered oak trees and stunning monuments. It has been featured in books and movies, capturing the imagination of many. Visitors can take a leisurely stroll through the cemetery and marvel at the artistry and serenity of this unique place.\n\n" +
+                "6. Telfair Museums: Art enthusiasts will appreciate the Telfair Museums, which consist of three separate museums displaying a diverse collection of art and artifacts. The Telfair Academy, the Owens-Thomas House, and the Jepson Center offer visitors a chance to explore various artistic styles and historical exhibits.\n\n" +
+                "7. Savannah College of Art and Design (SCAD): As a prominent art and design institution, SCAD has had a significant impact on the city's cultural scene. Visitors can wander through SCAD's various buildings and galleries, showcasing innovative and thought-provoking artwork from students and renowned artists.\n\n" +
+                "Tourists are drawn to Savannah for its rich history, architectural splendor, and Southern charm. Whether it's exploring the city's historic landmarks, strolling along the picturesque River Street, or immersing oneself in the artistic and cultural offerings, Savannah offers a truly enchanting experience. The city's hospitality, captivating beauty, and a sense of nostalgia make it an unforgettable destination for all who visit.");
+
+        savannah.addPicture("sav1.jpg");
+        savannah.addPicture("sav2.jpg");
+        savannah.addPicture("sav3.jpg");
+        savannah.addPicture("sav4.jpg");
+        savannah.addPicture("sav5.jpg");
         destinations.put("Savannah", savannah);
 
-        // Destination 3: Jekyll Island
-        Destination jekyllIsland = new Destination("Jekyll Island");
-        jekyllIsland.setDescription("Jekyll Island is a peaceful retreat with pristine beaches and a rich history. Explore Driftwood Beach, visit the Georgia Sea Turtle Center, and take a bike ride along the island's scenic trails.");
-        jekyllIsland.addPicture("jekyll1.jpg");
-        jekyllIsland.addPicture("jekyll2.jpg");
-        jekyllIsland.addPicture("jekyll3.jpg");
-        jekyllIsland.addPicture("jekyll4.jpg");
-        jekyllIsland.addPicture("jekyll5.jpg");
-        destinations.put("Jekyll Island", jekyllIsland);
+        Destination goldenIsles = new Destination("Golden Isles");
+        goldenIsles.setDescription("The Golden Isles of Georgia is a stunning coastal region consisting of a cluster of four barrier islands: St. Simons Island, Sea Island, Jekyll Island, and Little St. Simons Island. This picturesque area attracts tourists from far and wide with its pristine beaches, natural beauty, rich history, and a variety of outdoor activities. Here's a brief summary of the must-see attractions and why a tourist would visit the Golden Isles.\n" +
+                "\n" +
+                "1. St. Simons Island: Known for its charm and natural beauty, St. Simons Island offers visitors a perfect blend of relaxation and exploration. The island is home to iconic attractions like the St. Simons Lighthouse, which provides panoramic views of the coastline, and the historic Christ Church, one of the oldest churches in Georgia. Visitors can also enjoy miles of sandy beaches, bike along scenic trails, play golf on world-class courses, or explore the island's vibrant art scene.\n" +
+                "\n" +
+                "2. Sea Island: Renowned for its luxurious resorts and pristine beaches, Sea Island is a haven for those seeking a tranquil retreat. The island is famous for its world-class accommodations, upscale dining options, and exceptional golfing facilities. Visitors can indulge in spa treatments, relax by the pool, enjoy water sports, or take a nature walk along the picturesque coastline.\n" +
+                "\n" +
+                "3. Jekyll Island: With its rich history and unspoiled natural landscapes, Jekyll Island offers a unique experience for tourists. The island's historic district features the Jekyll Island Club, a historic hotel that was once a private retreat for America's wealthiest families. Visitors can explore the island's maritime forest, lounge on secluded beaches, visit the Georgia Sea Turtle Center, or take a bike ride on the extensive network of trails.\n" +
+                "\n" +
+                "4. Little St. Simons Island: As a privately owned island, Little St. Simons Island provides an exclusive and pristine getaway. This secluded paradise is a nature lover's dream, offering pristine beaches, tidal creeks, and expansive marshlands. Visitors can partake in birdwatching, kayak through serene waterways, take guided nature tours, or simply relax in the tranquility of the island's unspoiled surroundings.\n" +
+                "\n" +
+                "5. Outdoor Activities: The Golden Isles provide abundant opportunities for outdoor enthusiasts. Fishing enthusiasts can enjoy both deep-sea and inshore fishing, while boating enthusiasts can explore the waterways and embark on scenic cruises. Nature lovers can take guided eco-tours, go birdwatching, or observe sea turtles and other wildlife in their natural habitats.\n" +
+                "\n" +
+                "The Golden Isles of Georgia offer a diverse range of attractions and activities that cater to a variety of interests. Whether you seek relaxation, outdoor adventures, historical exploration, or luxury accommodations, the Golden Isles provide an idyllic coastal destination that promises a memorable experience for every tourist.");
+        goldenIsles.addPicture("gol1.jpg");
+        goldenIsles.addPicture("gol2.jpg");
+        goldenIsles.addPicture("gol3.jpg");
+        goldenIsles.addPicture("gol4.jpg");
+        goldenIsles.addPicture("gol5.jpg");
+        destinations.put("Golden Isles", goldenIsles);
 
-        // Destination 4: Tybee Island
-        Destination tybeeIsland = new Destination("Tybee Island");
-        tybeeIsland.setDescription("Tybee Island is a popular beach destination near Savannah. Enjoy the sandy shores, visit the historic Tybee Island Light Station, and explore the Tybee Marine Science Center.");
-        tybeeIsland.addPicture("tybee1.jpg");
-        tybeeIsland.addPicture("tybee2.jpg");
-        tybeeIsland.addPicture("tybee3.jpg");
-        tybeeIsland.addPicture("tybee4.jpg");
-        tybeeIsland.addPicture("tybee5.jpg");
-        destinations.put("Tybee Island", tybeeIsland);
+        Destination dahlonega = new Destination("Dahlonega");
+        dahlonega.setDescription("Dahlonega, Georgia, is a charming town nestled in the foothills of the North Georgia Mountains. Known for its rich history, natural beauty, and vibrant arts scene, Dahlonega attracts tourists seeking a unique and memorable experience. Here's a brief summary of the must-see attractions and why a tourist would visit Dahlonega.\n" +
+                "\n" +
+                "1. Dahlonega Square: The heart of the town, Dahlonega Square, is a picturesque historic district lined with unique shops, art galleries, and restaurants. Visitors can explore the local boutiques, sample delicious food, and soak in the small-town ambiance. The square is also home to the Dahlonega Gold Museum, where visitors can learn about the town's gold rush history and even try their hand at panning for gold.\n" +
+                "\n" +
+                "2. North Georgia Wine Country: Dahlonega is the gateway to North Georgia's burgeoning wine country. The region is known for its vineyards and wineries, offering wine enthusiasts the opportunity to sample award-winning wines while enjoying breathtaking views of the vineyards and surrounding mountains. Visitors can take vineyard tours, participate in tastings, and attend wine festivals throughout the year.\n" +
+                "\n" +
+                "3. Amicalola Falls State Park: Located just a short drive from Dahlonega, Amicalola Falls State Park is home to the tallest waterfall in Georgia. The cascading waterfall drops over 700 feet and offers stunning views and picturesque hiking trails. Visitors can hike to the top of the falls, stay overnight in the park's lodge, or explore the park's nature trails and wildlife.\n" +
+                "\n" +
+                "4. Outdoor Adventures: Dahlonega is a paradise for outdoor enthusiasts. The area boasts numerous opportunities for hiking, mountain biking, horseback riding, and fishing. The nearby Chattahoochee National Forest offers miles of scenic trails and camping spots for nature lovers to explore and enjoy the great outdoors.\n" +
+                "\n" +
+                "5. Festivals and Events: Dahlonega hosts various festivals and events throughout the year, showcasing the town's vibrant arts and cultural scene. The Bear on the Square Mountain Festival celebrates Appalachian music and art, while the Dahlonega Arts & Wine Festival highlights local artists and wineries. Visitors can enjoy live music, arts and crafts, delicious food, and a lively atmosphere during these festive occasions.\n" +
+                "\n" +
+                "6. Dahlonega Gold Mines: As the site of the first major gold rush in the United States, Dahlonega is steeped in gold mining history. Tourists can visit historic gold mines and learn about the town's fascinating past. The Consolidated Gold Mine offers underground tours where visitors can explore the tunnels and see demonstrations of gold panning.\n" +
+                "\n" +
+                "Tourists are drawn to Dahlonega for its small-town charm, outdoor recreational opportunities, rich history, and thriving arts community. Whether it's exploring the historic square, indulging in wine tastings, hiking to scenic waterfalls, or immersing oneself in the town's cultural events, Dahlonega offers a delightful blend of natural beauty, cultural experiences, and a warm welcoming atmosphere that makes it an appealing destination for all.");
+        dahlonega.addPicture("dah1.jpg");
+        dahlonega.addPicture("dah2.jpg");
+        dahlonega.addPicture("dah3.jpg");
+        dahlonega.addPicture("dah4.jpg");
+        dahlonega.addPicture("dah5.jpg");
+        destinations.put("Dahlonega", dahlonega);
 
-        // Destination 5: Athens
-        Destination athens = new Destination("Athens");
-        athens.setDescription("Athens is known for its vibrant music scene and rich cultural heritage. Visit the University of Georgia, explore the State Botanical Garden, and catch a live show at the historic 40 Watt Club.");
-        athens.addPicture("athens1.jpg");
-        athens.addPicture("athens2.jpg");
-        athens.addPicture("athens3.jpg");
-        athens.addPicture("athens4.jpg");
-        athens.addPicture("athens5.jpg");
-        destinations.put("Athens", athens);
 
-        // Destination 6: Cumberland Island
-        Destination cumberlandIsland = new Destination("Cumberland Island");
-        cumberlandIsland.setDescription("Cumberland Island is a pristine wilderness and a perfect destination for nature lovers. Explore the island's beautiful beaches, hike through the maritime forest, and visit the ruins of Dungeness Mansion.");
-        cumberlandIsland.addPicture("cumberland1.jpg");
-        cumberlandIsland.addPicture("cumberland2.jpg");
-        cumberlandIsland.addPicture("cumberland3.jpg");
-        cumberlandIsland.addPicture("cumberland4.jpg");
-        cumberlandIsland.addPicture("cumberland5.jpg");
-        destinations.put("Cumberland Island", cumberlandIsland);
 
-        // Destination 7: Macon
-        Destination macon = new Destination("Macon");
-        macon.setDescription("Macon is a city with a rich musical heritage and beautiful architecture. Visit the Ocmulgee National Monument, explore the historic Hay House, and enjoy the annual Cherry Blossom Festival.");
-        macon.addPicture("macon1.jpg");
-        macon.addPicture("macon2.jpg");
-        macon.addPicture("macon3.jpg");
-        macon.addPicture("macon4.jpg");
-        macon.addPicture("macon5.jpg");
-        destinations.put("Macon", macon);
     }
 
     public static void main(String[] args) {
         launch(args);
+    }
+}
+
+class Destination {
+    private String name;
+    private String description;
+    private List<String> pictures;
+
+    public Destination(String name) {
+        this.name = name;
+        pictures = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<String> getPictures() {
+        return pictures;
+    }
+
+    public void addPicture(String picturePath) {
+        pictures.add(picturePath);
     }
 }
 
