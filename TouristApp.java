@@ -1,15 +1,24 @@
-package com.example.mylovelyfxapp;
+package com.example.project3150;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +33,8 @@ public class TouristApp extends Application {
     public void start(Stage primaryStage) {
         // Initialize the destinations
         initializeDestinations();
+        readAllDataAtOnce("locfor.csv", destinations);
+        /** HERE 222*/
 
         // Create the main layout
         BorderPane mainLayout = new BorderPane();
@@ -80,8 +91,16 @@ public class TouristApp extends Application {
         Label descriptionLabel = new Label(destination.getDescription());
         descriptionLabel.setWrapText(true); // Enable wrapping of text to prevent it from stretching the window
 
-        // Add the title and description labels to the details view
-        detailsFlowPane.getChildren().addAll(titleLabel, descriptionLabel);
+        // Create the forecast label
+        Label forecastLabel = new Label("Forecast: " + destination.getForecast());
+        forecastLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
+
+        // Create the temperature label
+        Label temperatureLabel = new Label("Temperature: " + destination.getTemperature() + "°C");
+        temperatureLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
+
+        // Add the labels to the details view
+        detailsFlowPane.getChildren().addAll(titleLabel, descriptionLabel, forecastLabel, temperatureLabel);
 
         // Create the flow pane for the pictures
         FlowPane picturesFlowPane = new FlowPane(10, 10);
@@ -106,9 +125,43 @@ public class TouristApp extends Application {
             }
         }
 
+        VBox vbox = new VBox(10);
+        vbox.getChildren().addAll(forecastLabel, temperatureLabel, picturesFlowPane);
+
+        // Add the VBox to the details view
+        detailsFlowPane.getChildren().add(vbox);
+
+
         // Add the pictures flow pane to the details view
-        detailsFlowPane.getChildren().add(picturesFlowPane);
+
     }
+
+    /** HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE*/
+
+public static void readAllDataAtOnce(String file, Map<String, Destination> destinations) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] data = line.split(",");
+            String destinationName = data[0];
+            String temperature = data[1];
+            String forecast = data[2];
+
+            Destination destination = destinations.get(destinationName);
+            if (destination != null) {
+                destination.setTemperature(Double.parseDouble(temperature));
+                destination.setForecast(forecast);
+            }
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
+
+
+
+
 
     // Add the components to the details view
     private void initializeDestinations() {
@@ -191,6 +244,9 @@ class Destination {
     private String description;
     private List<String> pictures;
 
+    private double temperature;
+    private String forecast;
+
     public Destination(String name) {
         this.name = name;
         pictures = new ArrayList<>();
@@ -215,5 +271,24 @@ class Destination {
     public void addPicture(String picturePath) {
         pictures.add(picturePath);
     }
+
+
+    public double getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
+    }
+
+    public String getForecast() {
+        return forecast;
+    }
+
+    public void setForecast(String forecast) {
+        this.forecast = forecast;
+    }
+
+
 }
 
